@@ -1,6 +1,8 @@
 app:
   name: online-shop
   port: ":8080"
+  encryption:
+    salt: 10
 
 db:
   host: 127.0.0.1
@@ -11,5 +13,5 @@ db:
   connection_pool:
     max_idle_connection: 10
     max_open_connection: 30
-    max_lifetime_connection: 60  # second
-    max_idletime_connection: 60 
+    max_lifetime_connection: 60 # second
+    max_idletime_connection: 60
