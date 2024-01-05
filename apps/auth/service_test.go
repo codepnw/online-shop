@@ -2,10 +2,13 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/codepnw/online-shop/external/database"
+	"github.com/codepnw/online-shop/infra/response"
 	"github.com/codepnw/online-shop/internal/config"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -29,9 +32,25 @@ func init() {
 
 func TestRegister_Success(t *testing.T) {
 	req := RegisterRequestPayload{
-		Email:    "codepnw@mail.com",
+		Email:    fmt.Sprintf("%v@mail.com", uuid.NewString()),
 		Password: "mypassword",
 	}
 	err := svc.register(context.Background(), req)
 	require.Nil(t, err)
+}
+
+func TestRegister_Fail(t *testing.T) {
+	t.Run("error email already used", func(t *testing.T) {
+		email := fmt.Sprintf("%v@mail.com", uuid.NewString())
+		req := RegisterRequestPayload{
+			Email:    email,
+			Password: "mypassword",
+		}
+		err := svc.register(context.Background(), req)
+		require.Nil(t, err)
+
+		err = svc.register(context.Background(), req)
+		require.NotNil(t, err)
+		require.Equal(t, response.ErrEmailAlreadyUsed, err)
+	})
 }

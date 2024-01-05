@@ -3,10 +3,12 @@ package auth
 import (
 	"context"
 
+	"github.com/codepnw/online-shop/infra/response"
 	"github.com/codepnw/online-shop/internal/config"
 )
 
 type Repository interface {
+	GetAuthByEmail(ctx context.Context, email string) (model AuthEntity, err error)
 	CreateAuth(ctx context.Context, model AuthEntity) (err error)
 }
 
@@ -28,6 +30,17 @@ func (s service) register(ctx context.Context, req RegisterRequestPayload) (err 
 
 	if err = authEntity.EncryptPassword(int(config.Cfg.App.Encryption.Salt)); err != nil {
 		return
+	}
+
+	model, err := s.repo.GetAuthByEmail(ctx, authEntity.Email)
+	if err != nil {
+		if err != response.ErrNotFound {
+			return
+		}
+	}
+
+	if model.IsExists() {
+		return response.ErrEmailAlreadyUsed
 	}
 
 	return s.repo.CreateAuth(ctx, authEntity)
