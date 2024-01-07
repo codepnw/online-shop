@@ -3,6 +3,7 @@ app:
   port: ":8080"
   encryption:
     salt: 10
+    jwt_secret: myjwtsecret
 
 db:
   host: 127.0.0.1
