@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	"log"
 	"testing"
 
 	"github.com/codepnw/online-shop/external/database"
@@ -53,4 +54,25 @@ func TestRegister_Fail(t *testing.T) {
 		require.NotNil(t, err)
 		require.Equal(t, response.ErrEmailAlreadyUsed, err)
 	})
+}
+
+func TestLogin_Success(t *testing.T) {
+	email := fmt.Sprintf("%v@mail.com", uuid.NewString())
+	pass := "mypassword"
+	req := RegisterRequestPayload{
+		Email:    email,
+		Password: pass,
+	}
+	err := svc.register(context.Background(), req)
+	require.Nil(t, err)
+
+	reqLogin := LoginRequestPayload{
+		Email:    email,
+		Password: pass,
+	}
+	token, err := svc.login(context.Background(), reqLogin)
+	require.Nil(t, err)
+	require.NotEmpty(t, token)
+	
+	log.Println(token)
 }
